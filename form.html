@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Form</title>
+    <style>
+        body{
+            padding-left:1.5rem; 
+            background-color:rgb(255, 250, 227); 
+        }
+        h2{
+            color: #7ebd63;
+        }
+        form {
+          max-width: 400px;
+          margin: 20px auto;
+          padding-right: 40px;
+        }
+    
+        .form-group {
+          margin-bottom: 15px;
+        }
+    
+        label {
+          display: block;
+          margin-bottom: 5px;
+          font-family: sans-serif;
+        }
+    
+        input,
+        textarea,select {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #aed49e;
+          border-radius: 5px;
+        }
+    
+        button {
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          background: #7ebd63;
+          color: #fff;
+          font-size: 1rem;
+          cursor: pointer;
+        }
+      </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <h2>Can you please provide your personal details?</h2>
+    <form id="myForm">
+      <div>
+        <label  for="name">Name</label>
+        <input class="form-group" type="text" id="name" name="name">
+      </div>
+      <div>
+        <label for="email">Email address</label>
+        <input class="form-group" type="email" id="email" name="email">
+      </div>
+      <div>
+        <label for="contact">Contact number</label>
+        <input class="form-group" type="tel" id="contact" name="contact">
+      </div>
+      <div>
+        <label for="country">Country</label>
+        <select class="form-group" id="country" name="country"></select>
+      </div>
+      <div>
+        <label for="state">State</label>
+        <select class="form-group" id="state" name="state"></select>
+      </div>
+      <div>
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+
+     <!-- Javascript -->
+    <script>
+      // Populating the country dropdown using an API call
+      let obj;
+      $.ajax({
+        url: 'https://raw.githubusercontent.com/stefanbinder/countries-states/master/countries.json',
+        type: 'GET',
+        success: function(result) {
+            obj= JSON.parse(result);
+          let countryDropdown = $('#country');
+          countryDropdown.append($('<option>', { value: '', text: 'Select Country' }));
+        
+        for (cix in obj){
+       let options='<option value="'+obj[cix].name+'">'+obj[cix].name+'</option>';
+       $("#country").append(options);
+         }
+
+        },
+        error: function(error) {
+          console.log(error);
+        }
+      });
+
+      // Populating the state dropdown based on the selected country
+      $('#country').on('change', function() {
+        let setcountry = $(this).val();
+        let stateDropdown = $('#state');
+        stateDropdown.empty();
+        stateDropdown.append($('<option>', { value: '', text: 'Select State' }));
+        if (setcountry){ 
+
+        for (cix in obj){
+
+            if(obj[cix].name===setcountry){
+
+                for(stat in obj[cix].states){
+                let options='<option value="'+obj[cix].states[stat].name+'">'+obj[cix].states[stat].name+'</option>';
+                     $("#state").append(options);
+                }
+            }
+         }
+
+        }
+
+      });
+
+      // Form submission and validation
+      $('#myForm').on('submit', function(event) {
+        event.preventDefault();
+        let name = $('#name').val();
+        let email = $('#email').val();
+        let contact = $('#contact').val();
+        let country = $('#country').val();
+        let state = $('#state').val();
+        let valid = true;
+        let validation='All fields are valid.';
+        let emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        
+        // Country and State and Name validation
+        if (!country || !state || !name) {
+          valid = false;
+          validation= 'Please fill in all mandatory fields.';
+        }
+        // Name validation
+        else if (name.length < 4 || name.length > 10) {
+          valid = false;
+          validation= 'Name should be between 4 and 10 characters.';
+        }
+        // Email validation
+        else if(!emailRegex.test(email)) {
+          valid = false;
+          validation= 'Please enter a valid email address.';
+        }
+
+        // Contact number validation
+        else if (contact.length !== 10) {
+          valid = false;
+          validation='Contact number should be of 10 digits.';
+        }
+       // Sending back to Parent window
+        if (valid) {
+          // Success message
+          window.parent.postMessage(validation, '*');
+        } else {
+          // Error message
+          window.parent.postMessage(validation, '*');
+        }
+
+      });
+    </script>
+
+
+  </body>
+</html>
+

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Netomi Task</title>
+  </head>
+
+  <body>
+      <h1 style="text-align: center">Form in iFrame</h1>
+    <div style="display: flex; justify-content: center">
+
+      <iframe
+        src="form.html"
+        frameborder="1px black"
+        width="400px"
+        height="550px"
+      ></iframe>
+    </div>
+    <p id="message"style="text-align: center; font-size: 20px"></p>
+  </body>
+  
+  <script>
+     window.addEventListener('message', function(event) {
+    // if (event.origin !== "form.html") {
+    //   return;
+    // }
+      if(event.data==='All fields are valid.'){
+        document.getElementById('message').textContent = "Result: {\"Success\": \"" + event.data + "\"}";
+      }
+      else{
+        document.getElementById('message').textContent = "Result: {\"Error\": \"" + event.data + "\"}";
+      }
+    
+  });
+  </script>
+</html>
